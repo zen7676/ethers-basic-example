@@ -51,7 +51,17 @@ const initialize = () => {
             const newAccounts = await ethereum.request({
                 method: 'eth_requestAccounts',
             })
-            handleNewAccounts(newAccounts);
+            accounts = newAccounts;
+            accountsDiv.innerHTML = accounts;
+            if (isMetaMaskConnected()) {
+                retrieveButton.disabled = false;
+                retrieveButton.onclick = onClickRetrieve;
+                storeButton.disabled = false;
+                storeButton.onclick = onClickStore;
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner(0);
+                myContract = new ethers.Contract(ContractAddress, ContractAbi, signer);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -82,19 +92,6 @@ const initialize = () => {
             onboardButton.innerText = 'Connect';
             onboardButton.onclick = onClickConnect;
             onboardButton.disabled = false;
-        }
-    };
-    function handleNewAccounts(newAccounts) {
-        accounts = newAccounts;
-        accountsDiv.innerHTML = accounts;
-        retrieveButton.disabled = false;
-        retrieveButton.onclick = onClickRetrieve;
-        storeButton.disabled = false;
-        storeButton.onclick = onClickStore;
-        if (isMetaMaskConnected()) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner(0);
-            myContract = new ethers.Contract(ContractAddress, ContractAbi, signer);
         }
     };
     MetaMaskClientCheck();
